@@ -168,6 +168,11 @@ function startBot({ appState, prefix, adminID }) {
                     return api.sendMessage('❌ You are not authorized to use this command.', event.threadID);
                 }
 
+                // Help
+                if (command === 'help') {
+        reply(`📚 Commands:
+${config.prefix}groupname <name>`,
+
                 // Group Name Lock
                 if (command === 'grouplockname' && args[1] === 'on') {
                     const groupName = input.replace('on', '').trim();
