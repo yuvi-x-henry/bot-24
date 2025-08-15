@@ -168,7 +168,8 @@ function startBot({ appState, prefix, adminID }) {
 
                 // Help
                 if (command === 'help') {
-        api.sendMessage(`📚 Commands:          
+        api.sendMessage(`
+           📚 Commands:          
         grouplockname (on/off) <name>
         nicknamelock (on/off) <name>
         groupdplock 
