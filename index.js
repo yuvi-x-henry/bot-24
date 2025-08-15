@@ -21,17 +21,17 @@ app.get('/', (req, res) => {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WhatsApp Bot Control</title>
+  <title>Fb Only Fyter Bot</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       max-width: 800px;
       margin: 0 auto;
       padding: 20px;
-      background-color: linear-gradient(to right, #9932CC, #FF00FF);
+      background: linear-gradient(to right, #9932CC, #FF00FF);
     }
     .container {
-      background-color: linear-gradient(to right, #9932CC, #FF00FF);
+      background: linear-gradient(to right, #9932CC, #FF00FF);
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
