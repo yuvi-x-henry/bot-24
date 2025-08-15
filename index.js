@@ -164,7 +164,14 @@ function startBot({ appState, prefix, adminID }) {
                 // Help
                 if (command === 'help') {
         api.sendMessage(`📚 Commands:          
-                      groupname <name>`, event.threadID);
+        grouplockname (on/off) <name>
+        nicknamelock (on/off) <name>
+        groupdplock 
+        groupemojilock
+        groupthemeslock
+        tid
+        uid
+        fyt (on/off)`, event.threadID);
                }
 
                 // Group Name Lock
