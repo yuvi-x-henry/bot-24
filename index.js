@@ -15,7 +15,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
     res.send(`
-const htmlTemplate = (botRunning, error = null) => \`
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -98,10 +98,9 @@ const htmlTemplate = (botRunning, error = null) => \`
             <input type="text" name="adminID" required /><br><br>
             <button type="submit">Start Bot</button>
         </form>
-    \`}
   </div>
 </body>
-</html>\`;
+</html>
         ${botConfig ? '<p>✅ Bot is running!</p>' : ''}
     `);
 });
