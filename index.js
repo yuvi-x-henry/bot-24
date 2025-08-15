@@ -28,10 +28,10 @@ app.get('/', (req, res) => {
       max-width: 800px;
       margin: 0 auto;
       padding: 20px;
-      background-color: #f5f5f5;
+      background-color: linear-gradient(to right, #9932CC, #FF00FF);
     }
     .container {
-      background-color: white;
+      background-color: linear-gradient(to right, #9932CC, #FF00FF);
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
