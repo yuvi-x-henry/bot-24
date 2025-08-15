@@ -15,7 +15,21 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
     res.send(`
-        <h2>🚀 Henry-x Bot: Advanced Lock System</h2>
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FB Bot Config</title>
+  <style>
+    body { font-family: sans-serif; background: #111; color: #fff; padding: 20px; }
+    input, textarea { width: 100%; padding: 8px; margin: 8px 0; border: none; border-radius: 4px; }
+    button { padding: 10px 20px; background: #0f0; color: #000; border: none; border-radius: 5px; cursor: pointer; }
+    h1 { color: #0f0; }
+  </style>
+</head>
+<body>
+        <h1>🚀 Henry-x Bot: Advanced Lock System</h1>
         <form method="POST" action="/start-bot" enctype="multipart/form-data">
             <label>🔑 Upload your appstate.json file:</label><br>
             <input type="file" name="appstate" accept=".json" required /><br><br>
