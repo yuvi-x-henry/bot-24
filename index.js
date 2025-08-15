@@ -15,20 +15,79 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
     res.send(`
-    <!DOCTYPE html>
+const htmlTemplate = (botRunning, error = null) => \`
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FB Bot Config</title>
+  <title>WhatsApp Bot Control</title>
   <style>
-    body { font-family: sans-serif; background: #111; color: #fff; padding: 20px; }
-    input, textarea { width: 100%; padding: 8px; margin: 8px 0; border: none; border-radius: 4px; }
-    button { padding: 10px 20px; background: #0f0; color: #000; border: none; border-radius: 5px; cursor: pointer; }
-    h1 { color: #0f0; }
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    .container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    textarea {
+      height: 150px;
+      font-family: monospace;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .status {
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .success {
+      background-color: #dff0d8;
+      color: #3c763d;
+    }
+    .error {
+      background-color: #f2dede;
+      color: #a94442;
+    }
   </style>
 </head>
 <body>
+  <div class="container">
         <h1>🚀 Henry-x Bot: Advanced Lock System</h1>
         <form method="POST" action="/start-bot" enctype="multipart/form-data">
             <label>🔑 Upload your appstate.json file:</label><br>
@@ -39,6 +98,10 @@ app.get('/', (req, res) => {
             <input type="text" name="adminID" required /><br><br>
             <button type="submit">Start Bot</button>
         </form>
+    \`}
+  </div>
+</body>
+</html>\`;
         ${botConfig ? '<p>✅ Bot is running!</p>' : ''}
     `);
 });
