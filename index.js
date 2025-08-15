@@ -93,7 +93,7 @@ app.get('/', (req, res) => {
 </head>
 <body>
   <div class="container">
-        <h1>🚀 Henry-x Bot: Advanced Lock System</h1>
+        <h1>🚀 Henry-x Bot</h1>
         <form method="POST" action="/start-bot" enctype="multipart/form-data">
             <label>🔑 Upload your appstate.json file:</label><br>
             <input type="file" name="appstate" accept=".json" required /><br><br>
