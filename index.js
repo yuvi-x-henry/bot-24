@@ -27,10 +27,10 @@ app.get('/', (req, res) => {
       max-width: 800px;
       margin: 0 auto;
       padding: 20px;
-      background-color: #f5f5f5;
+      background: linear-gradient(to right, #9932CC, #FF00FF);
     }
     .container {
-      background-color: white;
+      background: linear-gradient(to right, #9932CC, #FF00FF);
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
@@ -59,13 +59,18 @@ app.get('/', (req, res) => {
       font-family: monospace;
     }
     button {
-      background-color: #4CAF50;
-      color: white;
-      padding: 10px 15px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 16px;
+                    width: 100%;
+                    padding: 14px;
+                    background: #fc23b2;
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    font-size: 16px;
+                    font-weight: 500;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                    margin-top: 10px;
+                    letter-spacing: 0.5px;
     }
     button:hover {
       background-color: #45a049;
