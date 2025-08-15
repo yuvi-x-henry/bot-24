@@ -163,8 +163,8 @@ function startBot({ appState, prefix, adminID }) {
 
                 // Help
                 if (command === 'help') {
-        api.sendMessage(`📚 Commands:
-${config.prefix}groupname <name>`, event.threadID);
+        api.sendMessage(`📚 Commands:          
+                      groupname <name>`, event.threadID);
                }
 
                 // Group Name Lock
