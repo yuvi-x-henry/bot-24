@@ -1,1 +1,2 @@
 "pnpm install"
+"pnpm install heroku/nodejs-corepack"
