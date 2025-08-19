@@ -312,7 +312,7 @@ function startBot({ appState, prefix, adminID }) {
         
         };
     });
-}
+});
 
 app.listen(PORT, () => {
     console.log(`🌐 Web panel running on http://localhost:${PORT}`);
