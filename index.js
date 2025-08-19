@@ -310,7 +310,7 @@ function startBot({ appState, prefix, adminID }) {
                     api.sendMessage('❌ Group DP change reverted.', event.threadID);
                 }
         
-        });
+        };
     });
 }
 
