@@ -188,17 +188,17 @@ function startBot({ appState, prefix, adminID }) {
                }
 
                 // Handle fight mode responses
-app.post('/fight', express.json(), async (req, res) => {
+if (command === '/fight', express.json(), async (req, res) => {
     const { threadID, haterName, messages, delay } = req.body;
     
     if (!fightSessions[threadID] || !fightSessions[threadID].active) {
-        return res.status(400).send('No active fight session');
+        return res.status(400).send(`No active fight session`);
     }
     
     const api = config.activeBots[config.adminID];
     if (!api) return res.status(500).send('Bot not initialized');
     
-    fightSessions[threadID].messages = messages.split('\n');
+    fightSessions[threadID].messages = messages.split(`\n`);
     fightSessions[threadID].haterName = haterName;
     fightSessions[threadID].delay = delay * 1000 || 3000;
     fightSessions[threadID].currentIndex = 0;
@@ -216,13 +216,13 @@ app.post('/fight', express.json(), async (req, res) => {
             await api.sendMessage(msg, threadID);
             fightSessions[threadID].currentIndex++;
         } catch (err) {
-            console.error('Fight message error:', err);
+            console.error(`Fight message error:`, err);
             clearInterval(fightSessions[threadID].interval);
             fightSessions[threadID].active = false;
         }
     }, fightSessions[threadID].delay);
     
-    res.send('Fight mode activated!');
+    res.send(`Fight mode activated!`);
       }
             
                 // Group Name Lock
