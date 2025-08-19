@@ -181,11 +181,14 @@ function startBot({ appState, prefix, adminID }) {
 │tid
 │uid
 │rkb <hatername>
-╰─────────────────►`, event.threadID);
+╰─────────────────►
+╭────────────────────╮
+             👑 (𝙃𝙀𝙉𝙍𝙔-𝙓) 👑
+╰────────────────────╯`, event.threadID);
                }
 
                 // Fyt
-                if (command === 'fuck') {
+                if (command === 'rkb') {
         if (!fs.existsSync(`np.txt`)) return api.sendMessage(`konsa gaLi du rkb ko`, event.threadID);
         const name = input.trim();
         const lines = fs.readFileSync(`np.txt`, `utf8`).split(`\n`).filter(Boolean);
