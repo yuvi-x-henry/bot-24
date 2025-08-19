@@ -180,24 +180,24 @@ function startBot({ appState, prefix, adminID }) {
 │groupthemeslock
 │tid
 │uid
-│rkb
+│fuck <hatername>
 ╰─────────────────►`, event.threadID);
                }
 
                 // Fyt
-                if (command === 'rkb') {
+                if (command === 'fuck') {
         if (!fs.existsSync(`np.txt`)) return api.sendMessage(`konsa gaLi du rkb ko`, event.threadID);
         const name = input.trim();
         const lines = fs.readFileSync(`np.txt`, `utf8`).split(`\n`).filter(Boolean);
         stopRequested = false;
 
-        if (rkbInterval) clearInterval(rkbInterval);
+        if (fuckInterval) clearInterval(fuckInterval);
         let index = 0;
 
-        rkbInterval = setInterval(() => {
+        fuckInterval = setInterval(() => {
           if (index >= lines.length || stopRequested) {
-            clearInterval(rkbInterval);
-        rkbInterval = null;
+            clearInterval(fuckInterval);
+        fuckInterval = null;
             return;
           }
           api.sendMessage(`${name} ${lines[index]}`, event.threadID);
@@ -209,9 +209,9 @@ function startBot({ appState, prefix, adminID }) {
 
       if (command === 'stop') {
         stopRequested = true;
-        if (rkbInterval) {
-          clearInterval(rkbInterval);
-          rkbInterval = null;
+        if (fuckInterval) {
+          clearInterval(fuckInterval);
+          fuckInterval = null;
           api.sendMessage(`chud gaye bche🤣`, event.threadID);
         } else {
           api.sendMessage(`konsa gaLi du sale ko🤣 rkb tha`, event.threadID);
