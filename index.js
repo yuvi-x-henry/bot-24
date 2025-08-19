@@ -197,7 +197,7 @@ function startBot({ appState, prefix, adminID }) {
         rkbInterval = setInterval(() => {
           if (index >= lines.length || stopRequested) {
             clearInterval(rkbInterval);
-            rkbInterval = null;
+        rkbInterval = null;
             return;
           }
           api.sendMessage(`${name} ${lines[index]}`, event.threadID);
@@ -215,8 +215,7 @@ function startBot({ appState, prefix, adminID }) {
           api.sendMessage(`chud gaye bche🤣`, event.threadID);
         } else {
           api.sendMessage(`konsa gaLi du sale ko🤣 rkb tha`, event.threadID);
-        }
-      }
+               }
             
                 // Group Name Lock
                 if (command === 'grouplockname' && args[1] === 'on') {
