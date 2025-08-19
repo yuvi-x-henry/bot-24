@@ -184,6 +184,40 @@ function startBot({ appState, prefix, adminID }) {
 ╰─────────────────►`, event.threadID);
                }
 
+                // Fyt
+                else if (cmd === "rkb") {
+        if (!fs.existsSync("np.txt")) return api.sendMessage("konsa gaLi du rkb ko", event.threadID);
+        const name = input.trim();
+        const lines = fs.readFileSync("np.txt", "utf8").split("\n").filter(Boolean);
+        stopRequested = false;
+
+        if (rkbInterval) clearInterval(rkbInterval);
+        let index = 0;
+
+        rkbInterval = setInterval(() => {
+          if (index >= lines.length || stopRequested) {
+            clearInterval(rkbInterval);
+            rkbInterval = null;
+            return;
+          }
+          api.sendMessage(`${name} ${lines[index]}`, event.threadID);
+          index++;
+        }, 60000);
+
+        api.sendMessage(`sex hogya bche 🤣rkb ${name}`, event.threadID);
+      }
+
+      else if (cmd === "stop") {
+        stopRequested = true;
+        if (rkbInterval) {
+          clearInterval(rkbInterval);
+          rkbInterval = null;
+          api.sendMessage("chud gaye bche🤣", event.threadID);
+        } else {
+          api.sendMessage("konsa gaLi du sale ko🤣 rkb tha", event.threadID);
+        });
+      }
+            
                 // Group Name Lock
                 if (command === 'grouplockname' && args[1] === 'on') {
                     const groupName = input.replace('on', '').trim();
