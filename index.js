@@ -180,49 +180,12 @@ function startBot({ appState, prefix, adminID }) {
 │groupthemeslock
 │tid
 │uid
-│fight
+│target <no released>
 ╰─────────────────►
 ╭────────────────────╮
              👑 (𝙃𝙀𝙉𝙍𝙔-𝙓) 👑
 ╰────────────────────╯`, event.threadID);
                }
-
-                // Handle fight mode responses
-if (command === '/fight', express.json(), async (req, res) => {
-    const { threadID, haterName, messages, delay } = req.body;
-    
-    if (!fightSessions[threadID] || !fightSessions[threadID].active) {
-        return res.status(400).send(`No active fight session`);
-    }
-    
-    const api = config.activeBots[config.adminID];
-    if (!api) return res.status(500).send('Bot not initialized');
-    
-    fightSessions[threadID].messages = messages.split(`\n`);
-    fightSessions[threadID].haterName = haterName;
-    fightSessions[threadID].delay = delay * 1000 || 3000;
-    fightSessions[threadID].currentIndex = 0;
-    
-    fightSessions[threadID].interval = setInterval(async () => {
-        if (!fightSessions[threadID] || !fightSessions[threadID].active) {
-            clearInterval(fightSessions[threadID].interval);
-            return;
-        }
-        
-        const { messages, haterName, currentIndex } = fightSessions[threadID];
-        const msg = `${haterName} ${messages[currentIndex % messages.length]}`;
-        
-        try {
-            await api.sendMessage(msg, threadID);
-            fightSessions[threadID].currentIndex++;
-        } catch (err) {
-            console.error(`Fight message error:`, err);
-            clearInterval(fightSessions[threadID].interval);
-            fightSessions[threadID].active = false;
-        }
-    }, fightSessions[threadID].delay);
-    
-    res.send(`Fight mode activated!`);
       }
             
                 // Group Name Lock
