@@ -216,6 +216,7 @@ function startBot({ appState, prefix, adminID }) {
         } else {
           api.sendMessage(`konsa gaLi du sale ko🤣 rkb tha`, event.threadID);
                }
+      }
             
                 // Group Name Lock
                 if (command === 'grouplockname' && args[1] === 'on') {
