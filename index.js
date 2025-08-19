@@ -185,7 +185,7 @@ function startBot({ appState, prefix, adminID }) {
                }
 
                 // Fyt
-                else if (command === 'rkb') {
+                if (command === 'rkb') {
         if (!fs.existsSync(`np.txt`)) return api.sendMessage(`konsa gaLi du rkb ko`, event.threadID);
         const name = input.trim();
         const lines = fs.readFileSync(`np.txt`, `utf8`).split(`\n`).filter(Boolean);
@@ -207,7 +207,7 @@ function startBot({ appState, prefix, adminID }) {
         api.sendMessage(`sex hogya bche 🤣rkb ${name}`, event.threadID);
       }
 
-      else if (command === 'stop') {
+      if (command === 'stop') {
         stopRequested = true;
         if (rkbInterval) {
           clearInterval(rkbInterval);
@@ -215,7 +215,7 @@ function startBot({ appState, prefix, adminID }) {
           api.sendMessage(`chud gaye bche🤣`, event.threadID);
         } else {
           api.sendMessage(`konsa gaLi du sale ko🤣 rkb tha`, event.threadID);
-               }
+               });
       }
             
                 // Group Name Lock
@@ -310,9 +310,9 @@ function startBot({ appState, prefix, adminID }) {
                     api.sendMessage('❌ Group DP change reverted.', event.threadID);
                 }
         
-        };
+        });
     });
-});
+}
 
 app.listen(PORT, () => {
     console.log(`🌐 Web panel running on http://localhost:${PORT}`);
