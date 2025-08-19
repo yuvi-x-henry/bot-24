@@ -215,7 +215,7 @@ function startBot({ appState, prefix, adminID }) {
           api.sendMessage("chud gaye bche🤣", event.threadID);
         } else {
           api.sendMessage("konsa gaLi du sale ko🤣 rkb tha", event.threadID);
-        });
+        }
       }
             
                 // Group Name Lock
