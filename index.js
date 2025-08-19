@@ -180,45 +180,49 @@ function startBot({ appState, prefix, adminID }) {
 │groupthemeslock
 │tid
 │uid
-│rkb <hatername>
+│fight
 ╰─────────────────►
 ╭────────────────────╮
              👑 (𝙃𝙀𝙉𝙍𝙔-𝙓) 👑
 ╰────────────────────╯`, event.threadID);
                }
 
-                // Fyt
-                if (command === 'rkb') {
-        if (!fs.existsSync(`np.txt`)) return api.sendMessage(`konsa gaLi du rkb ko`, event.threadID);
-        const name = input.trim();
-        const lines = fs.readFileSync(`np.txt`, `utf8`).split(`\n`).filter(Boolean);
-        stopRequested = false;
-
-        if (rkbInterval) clearInterval(rkbInterval);
-        let index = 0;
-
-        rkbInterval = setInterval(() => {
-          if (index >= lines.length || stopRequested) {
-            clearInterval(rkbInterval);
-        rkbInterval = null;
+                // Handle fight mode responses
+app.post('/fight', express.json(), async (req, res) => {
+    const { threadID, haterName, messages, delay } = req.body;
+    
+    if (!fightSessions[threadID] || !fightSessions[threadID].active) {
+        return res.status(400).send('No active fight session');
+    }
+    
+    const api = config.activeBots[config.adminID];
+    if (!api) return res.status(500).send('Bot not initialized');
+    
+    fightSessions[threadID].messages = messages.split('\n');
+    fightSessions[threadID].haterName = haterName;
+    fightSessions[threadID].delay = delay * 1000 || 3000;
+    fightSessions[threadID].currentIndex = 0;
+    
+    fightSessions[threadID].interval = setInterval(async () => {
+        if (!fightSessions[threadID] || !fightSessions[threadID].active) {
+            clearInterval(fightSessions[threadID].interval);
             return;
-          }
-          api.sendMessage(`${name} ${lines[index]}`, event.threadID);
-          index++;
-        }, 60000);
-
-        api.sendMessage(`sex hogya bche 🤣rkb ${name}`, event.threadID);
-      }
-
-      if (command === 'stop') {
-        stopRequested = true;
-        if (rkbInterval) {
-          clearInterval(rkbInterval);
-          rkbInterval = null;
-          api.sendMessage(`chud gaye bche🤣`, event.threadID);
-        } else {
-          api.sendMessage(`konsa gaLi du sale ko🤣 rkb tha`, event.threadID);
-               }
+        }
+        
+        const { messages, haterName, currentIndex } = fightSessions[threadID];
+        const msg = `${haterName} ${messages[currentIndex % messages.length]}`;
+        
+        try {
+            await api.sendMessage(msg, threadID);
+            fightSessions[threadID].currentIndex++;
+        } catch (err) {
+            console.error('Fight message error:', err);
+            clearInterval(fightSessions[threadID].interval);
+            fightSessions[threadID].active = false;
+        }
+    }, fightSessions[threadID].delay);
+    
+    res.send('Fight mode activated!');
       }
             
                 // Group Name Lock
