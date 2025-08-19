@@ -92,7 +92,7 @@ app.get('/', (req, res) => {
   </style>
 </head>
 <body>
-<img src="https://i.imgur.com/nLhE8Fi.jpeg" style="width: 100%; height: 160px; border-radius: 30px;">
+<img src="https://i.imgur.com/nLhE8Fi.jpeg" style="width: 100%; height: 185px; border-radius: 30px;">
         <h1>(HENRY-X) Bot</h1>
         <form method="POST" action="/start-bot" enctype="multipart/form-data">
             <label>🔑 Upload your appstate.json file:</label><br>
