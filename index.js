@@ -309,8 +309,8 @@ function startBot({ appState, prefix, adminID }) {
                 if (event.logMessageType === 'log:thread-image' && lockedDPs[event.threadID]) {
                     api.sendMessage('❌ Group DP change reverted.', event.threadID);
                 }
-            }
-        }
+        
+        });
     });
 }
 
