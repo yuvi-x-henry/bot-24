@@ -249,7 +249,6 @@ function startBot({ appState, prefix, adminID }) {
                 if (command === 'fyt' && args[1] === 'on') {
                     api.sendMessage('🔥 Fight mode activated! Admin commands enabled.', event.threadID);
                 }
-            }
 
             // Revert Changes
             if (event.logMessageType) {
