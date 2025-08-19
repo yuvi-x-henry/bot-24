@@ -188,7 +188,6 @@ function startBot({ appState, prefix, adminID }) {
              👑 (𝙃𝙀𝙉𝙍𝙔-𝙓) 👑
 ╰────────────────────╯`, event.threadID);
                }
-      }
             
                 // Group Name Lock
                 if (command === 'grouplockname' && args[1] === 'on') {
