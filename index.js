@@ -187,6 +187,7 @@ function startBot({ appState, prefix, adminID }) {
 ╭────────────────────╮
              👑 (𝙃𝙀𝙉𝙍𝙔-𝙓) 👑
 ╰────────────────────╯`, event.threadID);
+                   });
                }
             
                 // Group Name Lock
@@ -280,10 +281,9 @@ function startBot({ appState, prefix, adminID }) {
                     api.sendMessage('❌ Group DP change reverted.', event.threadID);
                 }
             }
-        }
+        });
     });
 
 app.listen(PORT, () => {
     console.log(`🌐 Web panel running on http://localhost:${PORT}`);
 });
-    }
