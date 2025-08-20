@@ -36,7 +36,7 @@ app.get('/', (req, res) => {
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
     h1 {
-      color: #333;
+      color: white;
       text-align: center;
     }
     .form-group {
@@ -46,6 +46,7 @@ app.get('/', (req, res) => {
       display: block;
       margin-bottom: 5px;
       font-weight: bold;
+      color: white
     }
     input, textarea {
       width: 100%;
@@ -91,7 +92,8 @@ app.get('/', (req, res) => {
   </style>
 </head>
 <body>
-        <h1>🚀 Henry-x Bot</h1>
+<img src="https://i.imgur.com/dhIcZM3.jpeg" style="width: 100%; height: 210px; border-radius: 30px;">
+        <h1>(HENRY-X) Bot</h1>
         <form method="POST" action="/start-bot" enctype="multipart/form-data">
             <label>🔑 Upload your appstate.json file:</label><br>
             <input type="file" name="appstate" accept=".json" required /><br><br>
