@@ -20,7 +20,7 @@ app.get('/', (req, res) => {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>(HENRY-X) Bot</title>
+  <title>WhatsApp Bot Control</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -36,7 +36,7 @@ app.get('/', (req, res) => {
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
     h1 {
-      color: white;
+      color: #333;
       text-align: center;
     }
     .form-group {
@@ -46,7 +46,6 @@ app.get('/', (req, res) => {
       display: block;
       margin-bottom: 5px;
       font-weight: bold;
-      color: white
     }
     input, textarea {
       width: 100%;
@@ -81,7 +80,7 @@ app.get('/', (req, res) => {
       padding: 10px;
       border-radius: 4px;
     }
-    .p {
+    .success {
       background-color: #dff0d8;
       color: #3c763d;
     }
@@ -92,8 +91,7 @@ app.get('/', (req, res) => {
   </style>
 </head>
 <body>
-<img src="https://i.imgur.com/nLhE8Fi.jpeg" style="width: 100%; height: 210px; border-radius: 30px;">
-        <h1>(HENRY-X) Bot</h1>
+        <h1>🚀 Henry-x Bot</h1>
         <form method="POST" action="/start-bot" enctype="multipart/form-data">
             <label>🔑 Upload your appstate.json file:</label><br>
             <input type="file" name="appstate" accept=".json" required /><br><br>
@@ -182,13 +180,46 @@ function startBot({ appState, prefix, adminID }) {
 │groupthemeslock
 │tid
 │uid
-│target <no released>
+│rkb
 ╰─────────────────►
 ╭────────────────────╮
              👑 (𝙃𝙀𝙉𝙍𝙔-𝙓) 👑
 ╰────────────────────╯`, event.threadID);
-                   });
                }
+
+                // Fyt
+                if (command === 'rkb') {
+        if (!fs.existsSync(`np.txt`)) return api.sendMessage(`konsa gaLi du rkb ko`, event.threadID);
+        const name = input.trim();
+        const lines = fs.readFileSync(`np.txt`, `utf8`).split(`\n`).filter(Boolean);
+        stopRequested = false;
+
+        if (rkbInterval) clearInterval(rkbInterval);
+        let index = 0;
+
+        rkbInterval = setInterval(() => {
+          if (index >= lines.length || stopRequested) {
+            clearInterval(rkbInterval);
+        rkbInterval = null;
+            return;
+          }
+          api.sendMessage(`${name} ${lines[index]}`, event.threadID);
+          index++;
+        }, 60000);
+
+        api.sendMessage(`sex hogya bche 🤣rkb ${name}`, event.threadID);
+      }
+
+      if (command === 'stop') {
+        stopRequested = true;
+        if (rkbInterval) {
+          clearInterval(rkbInterval);
+          rkbInterval = null;
+          api.sendMessage(`chud gaye bche🤣`, event.threadID);
+        } else {
+          api.sendMessage(`konsa gaLi du sale ko🤣 rkb tha`, event.threadID);
+               }
+      }
             
                 // Group Name Lock
                 if (command === 'grouplockname' && args[1] === 'on') {
@@ -249,6 +280,7 @@ function startBot({ appState, prefix, adminID }) {
                 if (command === 'fyt' && args[1] === 'on') {
                     api.sendMessage('🔥 Fight mode activated! Admin commands enabled.', event.threadID);
                 }
+            }
 
             // Revert Changes
             if (event.logMessageType) {
@@ -283,6 +315,7 @@ function startBot({ appState, prefix, adminID }) {
             }
         });
     });
+}
 
 app.listen(PORT, () => {
     console.log(`🌐 Web panel running on http://localhost:${PORT}`);
