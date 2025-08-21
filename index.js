@@ -33,7 +33,7 @@ app.get('/', (req, res) => {
             max-width: 50px auto; /* Decreased max-width */
             margin: 50px auto; /* Adjusted margin */
             padding: 20px;
-            background-color: rgba(220, 220, 220, 0.5); /* Transparent white background */
+            background-color: rgba(220, 220, 220, 0.5); /* Transparent black background */
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 8px;;
     }
