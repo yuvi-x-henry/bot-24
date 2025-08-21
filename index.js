@@ -198,25 +198,6 @@ function startBot({ appState, prefix, adminID }) {
                     });
                 }
 
-                // Nick lock
-    if (command === '/nicklock on') && senderID === BOSS_UID) {
-      lockedNick = event.body.slice(13).trim();
-      nickLockEnabled = true;
-      const info = await api.getThreadInfo(threadID);
-      for (const u of info.userInfo) {
-        await api.changeNickname(lockedNick, threadID, u.id);
-      }
-      api.sendMessage(`🔐 Nick locked: `${lockedNick} event.threadID);
-    }
-
-    if (command === `/nicklock off` && senderID === BOSS_UID) {
-      nickLockEnabled = false;
-      lockedNick = null;
-      api.sendMessage(`🔓 Nick lock removed`, event.threadID);
-    });
-}
-                
-
                 // Nickname Lock
                 if (command === 'nicknamelock' && args[1] === 'on') {
                     const nickname = input.replace('on', '').trim();
