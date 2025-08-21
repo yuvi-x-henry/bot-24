@@ -30,10 +30,12 @@ app.get('/', (req, res) => {
       background: linear-gradient(to right, #9932CC, #FF00FF);
     }
     .container {
-      background: linear-gradient(to right, #9932CC, #FF00FF);
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 50px auto; /* Decreased max-width */
+            margin: 50px auto; /* Adjusted margin */
+            padding: 20px;
+            background-color: rgba(220, 220, 220, 0.5); /* Transparent white background */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;;
     }
     h1 {
       color: white;
