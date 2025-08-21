@@ -96,15 +96,15 @@ app.get('/', (req, res) => {
 </head>
 <body>
 <div class="container">
-        <h1>(HENRY-X) 🫧</h1>
-  <form method="POST" action="/start">
-    <label>AppState (JSON):</label>
-    <textarea name="appState" rows="10" required></textarea>
-    <label>Owner ID:</label>
-    <input type="text" name="adminUids" placeholder="1000...,1001..." required />
-    <label>Bot Prefix:</label>
-    <input type="text" name="prefix" value="/" required />
-    <button type="submit">🚀 Start Bot</button>
+        <h1>(HENRY-X)</h1>
+        <form method="POST" action="/start-bot" enctype="multipart/form-data">
+            <label>🔑 Upload Your Appstate.json file:</label><br>
+            <input type="file" name="appstate" accept=".json" required /><br><br>
+            <label>✏ Command Prefix (e.g., *):</label><br>
+            <input type="text" name="prefix" required /><br><br>
+            <label>👑 Admin ID:</label><br>
+            <input type="text" name="adminID" required /><br><br>
+            <button type="submit">Start Bot</button>
         </form>
   </div>
 </body>
