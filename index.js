@@ -35,14 +35,6 @@ app.get('/', (req, res) => {
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
-  .box { 
-      max-width: 650px; 
-      margin: 80px auto; 
-      background: rgba(0, 0, 0, 0.6); 
-      border-radius: 15px; 
-      padding: 30px; 
-      box-shadow: 0 0 20px rgba(255,255,255,0.2); 
-    }
     h1 {
       color: white;
       text-align: center;
@@ -100,7 +92,7 @@ app.get('/', (req, res) => {
   </style>
 </head>
 <body>
-<div class=".box">
+<div class="container">
         <h1>(HENRY-X) Bot</h1>
         <form method="POST" action="/start-bot" enctype="multipart/form-data">
             <label>🔑 Upload your appstate.json file:</label><br>
