@@ -185,6 +185,9 @@ function startBot({ appState, prefix, adminID }) {
 │groupthemeslock
 │tid
 │uid
+╰─────────────────►
+          Comming soon : cmnd
+╭─────────────────────►
 │target [[no <release>
 ╰─────────────────►
 ╭────────────────────╮
