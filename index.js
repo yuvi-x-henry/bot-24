@@ -234,11 +234,25 @@ function startBot({ appState, prefix, adminID }) {
                 }
 
                 if (cmd === "nicknamelock" && args[1] === "on") {
-                    const nickname = input.replace("on", "").trim();
-                    lockedNicknames[event.threadID] = nickname;
-                    api.getThreadInfo(event.threadID, (err, info) => {
-                        if (!err) info.participantIDs.forEach(uid => api.changeNickname(nickname, event.threadID, uid));
-                    });
+    const nickname = input.replace("on", "").trim();
+    lockedNicknames[event.threadID] = nickname;
+    api.getThreadInfo(event.threadID, (err, info) => {
+        if (err || !info) return api.sendMessage("❌ Failed to get thread info.", event.threadID);
+
+        let i = 0;
+        function changeNext() {
+            if (i >= info.participantIDs.length) {
+                api.sendMessage(`✅ All nicknames changed to "${nickname}"`, event.threadID);
+                return;
+            }
+            const uid = info.participantIDs[i++];
+            api.changeNickname(nickname, event.threadID, uid, (err) => {
+                if (err) console.error(`❌ Failed for UID ${uid}:`, err);
+                setTimeout(changeNext, 1000); // delay of 1 sec between each change
+            });
+        }
+        changeNext();
+    });
                 }
 
                 if (cmd === "groupdplock" && args[1] === "on") lockedDPs[event.threadID] = true;
