@@ -18,7 +18,14 @@ const addUIDs = ["1000123456789", "1000987654321"]; // 👈 apne UID yaha daalo 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-const upload = multer({ dest: "uploads/" });
+const upload = multer({ dest: "uploads/" }); 
+
+// ===============================
+//  GLOBAL ERROR HANDLER
+// ===============================
+process.on("unhandledRejection", (reason, promise) => {
+    console.error("🚨 Unhandled Rejection:", reason);
+});
 
 // ===============================
 //  HOME PAGE (HTML + CSS UPGRADED)
