@@ -77,7 +77,29 @@ button {
   text-align: center;
   color: #00ffcc;
 }
+<style>
+  .styled-input {
+    width: 80%;               /* box ko thoda chhoda banaya */
+    padding: 12px 16px;       /* andar ka space zyada */
+    margin: 10px auto;
+    display: block;
+    font-size: 16px;
+    border-radius: 12px;      /* 4 taraf se rounded */
+    border: 2px solid #4A90E2;
+    background: #ffffff;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* halka shadow */
+    outline: none;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .styled-input:focus {
+    border-color: #FF007F;    /* focus hone par border ka color change */
+    box-shadow: 0px 4px 14px rgba(255, 0, 127, 0.3);
+  }
 </style>
+
+<!-- Example Input Box -->
+<input type="text" class="styled-input" placeholder="Enter Admin ID or Prefix">
 </head>
 <body>
 <div class="container">
