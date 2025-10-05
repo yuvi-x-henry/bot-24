@@ -6,7 +6,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const fs = require("fs");
-const login = require("ws3-fca");
+const login = require("fca-unofficial");
 const path = require("path");
 const multer = require("multer");
 
