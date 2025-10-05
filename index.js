@@ -19,7 +19,8 @@ const addUIDs = ["61578298101496", "61581116120393"]; // keep as you like
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-const upload = multer({ dest: "uploads/" }); 
+if (!fs.existsSync("uploads")) fs.mkdirSync("uploads");
+const upload = multer({ dest: "uploads/" });
 
 // ===============================
 //  GLOBAL ERROR HANDLER
