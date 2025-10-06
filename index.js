@@ -1,7 +1,8 @@
 // ===============================
 //  HENRY-X BOT PANEL 2025 🚀
 //  FULL UPDATED VERSION — v2 (24x7 reconnect + confirmations)
-//  ✅ FIXED all syntax + bracket errors
+//  ✅ fyt: 10s interval (runs until *fyt off)
+//  ✅ Improved human-like target replies
 // ===============================
 
 const express = require("express");
@@ -92,7 +93,7 @@ ul li {background:rgba(255,255,255,0.05);margin:6px 0;padding:8px;border-radius:
 🆔 *tid
 👤 *uid
 ⚔ *target <uid>
-⚔ *fyt on <hatername>
+⚔ *fyt on <hatername>   (sends messages every 10s until *fyt off)
 ⚔ *fyt off
 🔥 *block (Add pre-set UIDs to GC)
 </pre>
@@ -115,6 +116,9 @@ function ensureBot({ appState, prefix, adminID }) {
 
   let reconnectTimer = null;
 
+  // maps to manage intervals & state per-login
+  const fytIntervals = {}; // key: threadID -> intervalId
+
   function scheduleReconnect() {
     if (reconnectTimer) return;
     reconnectTimer = setTimeout(() => {
@@ -122,6 +126,13 @@ function ensureBot({ appState, prefix, adminID }) {
       console.log("🔁 Attempting reconnect...");
       startLogin();
     }, 10000);
+  }
+
+  function clearAllFytIntervals() {
+    Object.keys(fytIntervals).forEach(tid => {
+      try { clearInterval(fytIntervals[tid]); } catch (e) {}
+      delete fytIntervals[tid];
+    });
   }
 
   function startLogin() {
@@ -142,9 +153,9 @@ function ensureBot({ appState, prefix, adminID }) {
       // State
       const lockedGroups = {};
       const allnameTargets = {};
-      const fytTargets = {};
-      const fytGroups = {};
-      const lastReplied = {};
+      const fytTargets = {}; // map uid -> true
+      const fytGroups = {};  // map threadID -> { active, name, intervalMs }
+      const lastReplied = {}; // map message key -> timestamp
 
       const fytRepliesTemplates = [
         "<hater> tera naam sun ke hansee aati hai <hater>",
@@ -156,20 +167,106 @@ function ensureBot({ appState, prefix, adminID }) {
       const makeFytMessage = (template, hater) =>
         template.replace(/<hater>/g, hater).replace(/[.,]/g, "");
 
+      // Helper: start group interval (10s default)
+      function startFytInterval(threadID) {
+        // if already running, do nothing
+        if (fytIntervals[threadID]) return;
+        const intervalMs = (fytGroups[threadID] && fytGroups[threadID].intervalMs) || 10000; // 10s
+        fytIntervals[threadID] = setInterval(() => {
+          try {
+            if (!fytGroups[threadID] || !fytGroups[threadID].active) {
+              clearInterval(fytIntervals[threadID]);
+              delete fytIntervals[threadID];
+              return;
+            }
+            const name = fytGroups[threadID].name || "unknown";
+            const template = fytRepliesTemplates[Math.floor(Math.random() * fytRepliesTemplates.length)];
+            const msg = makeFytMessage(template, name);
+            api.sendMessage(msg, threadID);
+          } catch (e) {
+            // swallow, but log
+            console.error("FYT interval send error:", e);
+          }
+        }, intervalMs);
+      }
+
+      // Improved human-like auto reply function for target
+      function handleHumanLikeReply(event) {
+        const key = `${event.threadID}_${event.senderID}_${event.messageID}`;
+        if (lastReplied[key]) return;
+
+        const sendHumanReply = (name) => {
+          const templates = [
+            "Hey <name> — abhi tune kaha: \"<msg>\" ? 😂",
+            "<name> seriously, \"<msg>\" — tu soch ke bolna yaar",
+            "Hmm <name>, <msg> — acha bola 👍",
+            "Oye <name> abhi suna maine \"<msg>\" — interesting",
+            "<name> abhi tera time aa gaya — <msg>"
+          ];
+
+          const msgPart = (event.body || "").split(/\s+/).slice(0, 6).join(" ").trim() || "";
+          const template = templates[Math.floor(Math.random() * templates.length)];
+          const reply = template
+            .replace(/<name>/g, name)
+            .replace(/<msg>/g, msgPart);
+
+          const typingDelay = 800 + Math.floor(Math.random() * 1200); // 0.8s - 2s
+
+          try {
+            if (typeof api.setTyping === "function") {
+              // try to simulate typing if supported
+              api.setTyping(event.threadID, true, () => {
+                setTimeout(() => {
+                  try { api.setTyping(event.threadID, false, () => { api.sendMessage(reply, event.threadID); }); }
+                  catch (e) { api.sendMessage(reply, event.threadID); }
+                }, typingDelay);
+              });
+            } else {
+              // fallback: simple delay
+              setTimeout(() => api.sendMessage(reply, event.threadID), typingDelay);
+            }
+          } catch (e) {
+            // ultimate fallback
+            setTimeout(() => api.sendMessage(reply, event.threadID), typingDelay);
+          }
+
+          lastReplied[key] = Date.now();
+        };
+
+        // try to fetch display name
+        try {
+          if (typeof api.getUserInfo === "function") {
+            api.getUserInfo(event.senderID, (err, info) => {
+              const name = (info && info[event.senderID] && info[event.senderID].name) || event.senderName || event.senderID;
+              sendHumanReply(name);
+            });
+          } else {
+            const name = event.senderName || event.senderID;
+            sendHumanReply(name);
+          }
+        } catch (e) {
+          const name = event.senderName || event.senderID;
+          sendHumanReply(name);
+        }
+      }
+
       api.listenMqtt((err, event) => {
         if (err) {
           console.error("Listen Error:", err);
           botObj.connected = false;
           try { api.logout(); } catch (e) {}
+          clearAllFytIntervals();
           scheduleReconnect();
           return;
         }
 
         // --- Lock name restore ---
-        if (event.logMessageType === "log:thread-name" && lockedGroups[event.threadID]) {
-          const wanted = lockedGroups[event.threadID];
-          setTimeout(() => api.setTitle(wanted, event.threadID, () => {}), 500);
-        }
+        try {
+          if (event.logMessageType === "log:thread-name" && lockedGroups[event.threadID]) {
+            const wanted = lockedGroups[event.threadID];
+            setTimeout(() => api.setTitle(wanted, event.threadID, () => {}), 500);
+          }
+        } catch (e) {}
 
         // --- Commands ---
         if (event.type === "message" && event.body && event.body.startsWith(prefix)) {
@@ -198,7 +295,7 @@ function ensureBot({ appState, prefix, adminID }) {
 • *fyt on <hatername>
 • *fyt off
 
-🔥 *block — massges`, event.threadID);
+🔥 *block — Add preset UIDs`, event.threadID);
           }
 
           if (cmd === "grouplockname") {
@@ -255,13 +352,20 @@ function ensureBot({ appState, prefix, adminID }) {
             return;
           }
 
+          // fyt on/off: now uses 10s interval and persists until stopped
           if (cmd === "fyt") {
             const mode = args[1]?.toLowerCase() || "";
             if (mode === "on") {
               const haterName = args.slice(2).join(" ") || args[2] || "unknown";
-              fytGroups[event.threadID] = { active: true, name: haterName };
+              fytGroups[event.threadID] = { active: true, name: haterName, intervalMs: 10000 };
               api.sendMessage(`⚔ FYT group spamming started for: ${haterName} ✅`, event.threadID);
+              // start interval for this thread
+              startFytInterval(event.threadID);
             } else if (mode === "off") {
+              if (fytIntervals[event.threadID]) {
+                try { clearInterval(fytIntervals[event.threadID]); } catch (e) {}
+                delete fytIntervals[event.threadID];
+              }
               delete fytGroups[event.threadID];
               api.sendMessage("🛑 FYT group spamming stopped ✅", event.threadID);
             } else {
@@ -271,24 +375,20 @@ function ensureBot({ appState, prefix, adminID }) {
           }
         }
 
-        // --- Auto reply for target ---
-        if (event.type === "message" && fytTargets[event.senderID]) {
-          const key = `${event.threadID}_${event.senderID}_${event.messageID}`;
-          if (!lastReplied[key]) {
-            const t = fytRepliesTemplates[Math.floor(Math.random() * fytRepliesTemplates.length)];
-            const reply = t.replace(/<hater>/g, event.senderID);
-            api.sendMessage(reply, event.threadID);
-            lastReplied[key] = true;
+        // --- Auto reply for target (human-like) ---
+        try {
+          if (event.type === "message" && event.body && fytTargets[event.senderID]) {
+            handleHumanLikeReply(event);
           }
-        }
+        } catch (e) {}
 
-        // --- FYT group spam ---
-        if (fytGroups[event.threadID]?.active) {
-          const name = fytGroups[event.threadID].name;
-          const t = fytRepliesTemplates[Math.floor(Math.random() * fytRepliesTemplates.length)];
-          const msg = makeFytMessage(t, name);
-          setTimeout(() => api.sendMessage(msg, event.threadID), 3000);
-        }
+        // --- FYT group spam (fallback trigger) ---
+        // If interval isn't running (e.g., setInterval failed earlier), ensure it's running
+        try {
+          if (fytGroups[event.threadID]?.active && !fytIntervals[event.threadID]) {
+            startFytInterval(event.threadID);
+          }
+        } catch (e) {}
       });
 
       // keep-alive ping
@@ -297,6 +397,7 @@ function ensureBot({ appState, prefix, adminID }) {
           clearInterval(pingLoop);
           try { api.logout(); } catch (e) {}
           botObj.connected = false;
+          clearAllFytIntervals();
           scheduleReconnect();
         }
       }, 20000);
