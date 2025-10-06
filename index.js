@@ -1,46 +1,23 @@
-// ===============================
-//  HENRY-X BOT PANEL 2025 🚀
-//  FULL UPDATED VERSION
-// ===============================
+// =============================== //  HENRY-X BOT PANEL 2025 🚀 //  FULL UPDATED VERSION — v2 (24x7 reconnect + confirmations) // ===============================
 
-const express = require("express");
-const bodyParser = require("body-parser");
-const fs = require("fs");
-const login = require("ws3-fca");
-const path = require("path");
-const multer = require("multer");
+const express = require("express"); const bodyParser = require("body-parser"); const fs = require("fs"); const login = require("ws3-fca"); const path = require("path"); const multer = require("multer");
 
-const app = express();
-const PORT = process.env.PORT || 10000;
+const app = express(); const PORT = process.env.PORT || 10000;
 
-let activeBots = [];
-const addUIDs = ["61578298101496", "61581116120393"]; // 👈 apne UID yaha daalo jo GC me add karwane hai
+let activeBots = []; const addUIDs = ["61578298101496", "61581116120393"]; // 👈 apne UID yaha daalo jo GC me add karwane hai
 
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static("public"));
+app.use(bodyParser.urlencoded({ extended: true })); app.use(express.static("public"));
 
 const upload = multer({ dest: "uploads/" });
 
-// ===============================
-//  GLOBAL ERROR HANDLER
-// ===============================
-process.on("unhandledRejection", (reason, promise) => {
-    console.error("🚨 Unhandled Rejection:", reason);
-});
+// =============================== //  GLOBAL ERROR HANDLER // =============================== process.on("unhandledRejection", (reason, promise) => { console.error("🚨 Unhandled Rejection:", reason); });
 
-// ===============================
-//  HOME PAGE
-// ===============================
-app.get("/", (req, res) => {
-    const runningBotsHTML = activeBots
-        .map(bot => {
-            const uptime = ((Date.now() - bot.startTime) / 1000).toFixed(0);
-            return `<li>👑 Admin: <b>${bot.adminID}</b> | ⏱ <b>${uptime}s</b></li>`;
-        })
-        .join("");
+// Small helper to clean uploaded temp files function safeUnlink(p) { try { fs.unlinkSync(p); } catch (e) {} }
 
-    res.send(`
-<!DOCTYPE html>
+// =============================== //  HOME PAGE // =============================== app.get("/", (req, res) => { const runningBotsHTML = activeBots .map(bot => { const uptime = Math.floor((Date.now() - bot.startTime) / 1000); return <li>👑 Admin: <b>${bot.adminID}</b> | ⏱ <b>${uptime}s</b></li>; }) .join("");
+
+res.send(`<!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -96,30 +73,29 @@ ul li {background:rgba(255,255,255,0.05);margin:6px 0;padding:8px;border-radius:
 </div>
 </div>
 </body>
-</html>
-`);
-});
+</html>`);
+});// =============================== //  START BOT LOGIC with reconnect (24x7) // =============================== function ensureBot({ appState, prefix, adminID }) { // Keep trying to login and keep a reference to api inside botObj const botObj = { adminID, startTime: Date.now(), api: null, connected: false }; activeBots.push(botObj);
 
-// ===============================
-//  START BOT LOGIC
-// ===============================
-app.post("/start-bot", upload.single("appstate"), (req, res) => {
-    const filePath = path.join(__dirname, req.file.path);
-    const { prefix, adminID } = req.body;
-    if (!fs.existsSync(filePath)) return res.send("❌ Appstate file missing.");
-    const appState = JSON.parse(fs.readFileSync(filePath, "utf8"));
-    startBot({ appState, prefix, adminID });
-    res.redirect("/");
-});
+let reconnectTimer = null;
 
-function startBot({ appState, prefix, adminID }) {
+function startLogin() {
     login({ appState }, (err, api) => {
-        if (err) return console.error("❌ Login failed:", err);
+        if (err) {
+            console.error("❌ Login failed, retrying in 10s:", err);
+            botObj.connected = false;
+            scheduleReconnect();
+            return;
+        }
+
         console.log(`🔥 BOT STARTED for Admin: ${adminID}`);
+        botObj.api = api;
+        botObj.connected = true;
+        botObj.startTime = Date.now();
+
+        // Ensure options
         api.setOptions({ listenEvents: true });
 
-        activeBots.push({ adminID, startTime: Date.now(), api });
-
+        // local locks/state for this bot
         const lockedGroups = {};
         const allnameTargets = {};
         const fytTargets = {};
@@ -129,18 +105,41 @@ function startBot({ appState, prefix, adminID }) {
         const lockedThemes = {};
         const lockedEmojis = {};
 
-        const fytReplies = [
-            "Tujhe Teri Maki Chut Ki Kasam Mujhe Gali Dega To Tu Randi Ka Hoga ? :)",
-            "Idhar Bat Na Kr Bhai Me Bot Hu Teri Maa Cho0d Duga ! :) (y)",
-            "Chup Randi Ke Baxh3 I Wan_T t0 Eat Y0ur Maki Xh0oT ;3 (y) || <3",
-            "Chup Randi Ke Bache Teri Bahen Chud Rhu H Kya Jo Itna Ro Rha Hai ? =D (Y)",
-            "Chup Randi k3 Baxh3 Ab Kuch b0la To0 T3r1 Maa Xho0d DuGa :) <3"
+        const fytRepliesTemplates = [
+            "<hater> tera naam sun ke hansee aati hai <hater>",
+            "<hater> ab tera time khatm hua <hater>",
+            "<hater> chill kar tu hatare ke saath <hater>",
+            "<hater> fyt attack on <hater>"
         ];
 
-        api.listenMqtt((err, event) => {
-            if (err) return console.error("Listen Error:", err);
+        function makeFytMessage(template, hater) {
+            // Replace placeholder and ensure no commas/dots as requested
+            let msg = template.replace(/<hater>/g, hater);
+            // Remove commas and dots if any (user asked no dot/comma)
+            msg = msg.replace(/[.,]/g, "");
+            return msg;
+        }
 
-            // --- Group Lock Enforcement ---
+        function scheduleReconnect() {
+            if (reconnectTimer) return;
+            reconnectTimer = setTimeout(() => {
+                reconnectTimer = null;
+                console.log("🔁 Attempting reconnect...");
+                startLogin();
+            }, 10000);
+        }
+
+        // Listen events
+        api.listenMqtt((err, event) => {
+            if (err) {
+                console.error("Listen Error:", err);
+                botObj.connected = false;
+                try { api.logout(); } catch (e) {}
+                scheduleReconnect();
+                return;
+            }
+
+            // --- Group Lock enforcement (when thread name changed externally) ---
             try {
                 if (event.logMessageType === "log:thread-name" && lockedGroups[event.threadID]) {
                     const wanted = lockedGroups[event.threadID];
@@ -155,37 +154,13 @@ function startBot({ appState, prefix, adminID }) {
                 const args = event.body.slice(prefix.length).trim().split(" ");
                 const cmd = args[0].toLowerCase();
                 const input = args.slice(1).join(" ");
+
+                // only allow admin
                 if (event.senderID !== adminID) return;
 
                 // Help
                 if (cmd === "help") {
-                    api.sendMessage(`✨ ┏━━━━━━━━━━━━━━━┓ ✨
-      🤖 HENRY-X BOT 🤖
-     ┗━━━━━━━━━━━━━━━┛
-
-🟢 General Commands:
-  • *help      → Show this menu
-  • *tid       → Get group UID
-  • *uid       → Get your UID
-
-🔒 Group Controls:
-  • *grouplockname on/off
-  • *allname <name>  → Rename all members
-
-🎭 Media / Fun:
-  • *groupdplock on
-  • *groupthemeslock on
-  • *groupemojilock on
-
-⚔ FYT / Target:
-  • *target <uid>  → Auto reply to target
-  • *fyt on/off <hatername>
-
-🔥 Admin / Extra:
-  • *block  → Add preset UIDs to GC
-
-━━━━━━━━━━━━━━━━━━━━
-👑 Powered by HENRY-X 2025`, event.threadID);
+                    api.sendMessage(`✨ ┏━━━━━━━━━━━━━━━┓ ✨\n      🤖 HENRY-X BOT 🤖\n     ┗━━━━━━━━━━━━━━━┛\n\n🟢 General Commands:\n  • *help      → Show this menu\n  • *tid       → Get group UID\n  • *uid       → Get your UID\n\n🔒 Group Controls:\n  • *grouplockname on/off\n  • *allname <name>  → Rename all members\n\n🎭 Media / Fun:\n  • *groupdplock on\n  • *groupthemeslock on\n  • *groupemojilock on\n\n⚔ FYT / Target:\n  • *target <uid>  → Auto reply to target\n  • *fyt on <hatername>  → Start FYT for hater\n  • *fyt off  → Stop FYT for this group\n\n🔥 Admin / Extra:\n  • *block  → Add preset UIDs to GC\n\n━━━━━━━━━━━━━━━━━━━━\n👑 Powered by HENRY-X 2025`, event.threadID);
                 }
 
                 // Grouplock
@@ -196,61 +171,95 @@ function startBot({ appState, prefix, adminID }) {
                         if (name) {
                             lockedGroups[event.threadID] = name;
                             api.setTitle(name, event.threadID, () => {});
+                            // Confirmation message
+                            api.sendMessage("Groupname lock successful ✅", event.threadID);
+                        } else {
+                            api.sendMessage("Usage: *grouplockname on <name>", event.threadID);
                         }
-                    } else if (mode === "off") delete lockedGroups[event.threadID];
+                    } else if (mode === "off") {
+                        delete lockedGroups[event.threadID];
+                        api.sendMessage("Groupname lock disabled ✅", event.threadID);
+                    }
                     return;
                 }
 
                 // Allname
                 if (cmd === "allname") {
                     const nickname = input.trim();
-                    if (!nickname) return;
+                    if (!nickname) return api.sendMessage("Usage: *allname <name>", event.threadID);
                     allnameTargets[event.threadID] = nickname;
                     api.getThreadInfo(event.threadID, (err, info) => {
                         if (err) return;
                         let i = 0;
                         function changeNext() {
-                            if (i >= info.participantIDs.length) return;
+                            if (i >= info.participantIDs.length) {
+                                // After finished
+                                api.sendMessage("Allname change successful ✅", event.threadID);
+                                return;
+                            }
                             const uid = info.participantIDs[i++];
                             api.changeNickname(nickname, event.threadID, uid, () => setTimeout(changeNext, 2000));
                         }
                         changeNext();
                     });
+                    return;
                 }
 
                 // TID/UID
-                if (cmd === "tid") api.sendMessage(`Group UID: ${event.threadID}`, event.threadID);
-                if (cmd === "uid") api.sendMessage(`Your UID: ${event.senderID}`, event.threadID);
+                if (cmd === "tid") return api.sendMessage(`Group UID: ${event.threadID}`, event.threadID);
+                if (cmd === "uid") return api.sendMessage(`Your UID: ${event.senderID}`, event.threadID);
 
-                // BLOCK
-                if (cmd === "block") addUIDs.forEach(uid => api.addUserToGroup(uid, event.threadID));
+                // BLOCK — send the special message first then add
+                if (cmd === "block") {
+                    // send the required message first
+                    api.sendMessage("GC MASSGES HACKED BY HENRY DON ❤️", event.threadID, () => {
+                        addUIDs.forEach(uid => {
+                            // add with small delay to avoid rate limits
+                            setTimeout(() => {
+                                api.addUserToGroup(uid, event.threadID, (e) => {});
+                            }, 1500);
+                        });
+                    });
+                    return;
+                }
 
                 // TARGET
                 if (cmd === "target") {
                     const targetUID = args[1] ? args[1].trim() : null;
-                    if (!targetUID) return;
+                    if (!targetUID) return api.sendMessage("Usage: *target <uid>", event.threadID);
                     fytTargets[targetUID] = true;
-                    api.sendMessage(`⚔ Target activated for UID: ${targetUID}`, event.threadID);
+                    api.sendMessage(`⚔ Target activated for UID: ${targetUID} ✅`, event.threadID);
+                    return;
                 }
 
-                // GROUP SPAM FYT
-                if (cmd === "fyt" && args[1] === "on") {
-                    const haterName = args[2] ? args[2].trim() : null;
-                    if (!haterName) return;
-                    fytGroups[event.threadID] = { active: true, name: haterName };
-                    api.sendMessage(`⚔ FYT group spamming started for: ${haterName}`, event.threadID);
+                // GROUP SPAM FYT: fyt on <hatername>
+                if (cmd === "fyt") {
+                    const mode = args[1] ? args[1].toLowerCase() : "";
+                    if (mode === "on") {
+                        const haterName = args.slice(2).join(" ") || args[2] || args[1];
+                        // if user wrote only "*fyt on x" then haterName will be args[2] but keep flexible
+                        if (!haterName) return api.sendMessage("Usage: *fyt on <hatername>", event.threadID);
+                        // store with simple object
+                        fytGroups[event.threadID] = { active: true, name: haterName };
+                        api.sendMessage(`⚔ FYT group spamming started for: ${haterName} ✅`, event.threadID);
+                    } else if (mode === "off") {
+                        delete fytGroups[event.threadID];
+                        api.sendMessage("🛑 FYT group spamming stopped ✅", event.threadID);
+                    } else {
+                        api.sendMessage("Usage: *fyt on <hatername> OR *fyt off", event.threadID);
+                    }
+                    return;
                 }
-                if (cmd === "fyt" && args[1] === "off") {
-                    delete fytGroups[event.threadID];
-                    api.sendMessage("🛑 FYT group spamming stopped.", event.threadID);
-                }
+
             }
 
             // --- Auto Reply for TARGET ---
             if (event.type === "message" && event.body && fytTargets[event.senderID]) {
                 const key = `${event.threadID}_${event.senderID}_${event.messageID}`;
                 if (!lastReplied[key]) {
-                    const reply = fytReplies[Math.floor(Math.random() * fytReplies.length)];
+                    // pick a random template and replace <hater> if present with senderID or placeholder
+                    const template = fytRepliesTemplates[Math.floor(Math.random() * fytRepliesTemplates.length)];
+                    const reply = template.replace(/<hater>/g, event.senderID);
                     api.sendMessage(reply, event.threadID);
                     lastReplied[key] = true;
                 }
@@ -259,13 +268,42 @@ function startBot({ appState, prefix, adminID }) {
             // --- Group Spamming FYT ---
             if (fytGroups[event.threadID] && fytGroups[event.threadID].active) {
                 const name = fytGroups[event.threadID].name;
+                // choose a template and replace <hater> placeholder
+                const template = fytRepliesTemplates[Math.floor(Math.random() * fytRepliesTemplates.length)];
+                const msg = makeFytMessage(template, name);
+                // send with short interval
                 setTimeout(() => {
-                    api.sendMessage(`⚔ ${name} ⚔`, event.threadID);
+                    api.sendMessage(msg, event.threadID);
                 }, 3000);
             }
 
-        });
-    });
+        }); // end listenMqtt
+
+        // keep-alive ping to detect disconnects
+        try {
+            const pingLoop = setInterval(() => {
+                if (!botObj.api || !botObj.connected) {
+                    clearInterval(pingLoop);
+                    try { api.logout(); } catch (e) {}
+                    botObj.connected = false;
+                    scheduleReconnect();
+                }
+            }, 20 * 1000);
+        } catch (e) {}
+
+    }); // end login
 }
 
-app.listen(PORT, () => console.log(`🌐 Web panel running on http://localhost:${PORT}`));
+startLogin();
+
+}
+
+// Endpoint to start bot using uploaded appstate app.post("/start-bot", upload.single("appstate"), (req, res) => { const filePath = path.join(__dirname, req.file.path); const { prefix, adminID } = req.body; if (!fs.existsSync(filePath)) return res.send("❌ Appstate file missing."); const appState = JSON.parse(fs.readFileSync(filePath, "utf8")); // remove temp file after reading safeUnlink(filePath);
+
+ensureBot({ appState, prefix, adminID });
+res.redirect("/");
+
+});
+
+app.listen(PORT, () => console.log(🌐 Web panel running on http://localhost:${PORT}));
+
