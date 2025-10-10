@@ -158,10 +158,10 @@ function ensureBot({ appState, prefix, adminID }) {
       const lastReplied = {}; // map message key -> timestamp
 
       const fytRepliesTemplates = [
-        "<hater> tera naam sun ke hansee aati hai <hater>",
-        "<hater> ab tera time khatm hua <hater>",
-        "<hater> chill kar tu hatare ke saath <hater>",
-        "<hater> fyt attack on <hater>"
+        "<hater> Teri Maa Ka Bhosda Bada Krduga Chod Chod Ke Randi Ke Bache 😂🥲",
+        "<hater> Kya Re Randii Ke Baxh3 Terii Maa Ko0 Xho0du Kyaa B3 😑",
+        "<hater> Teri To Maa Chod Duga Me Bahen Ke Lod3 🫠❤️",
+        "<hater> Teri Maki Chut Bhai :)"
       ];
 
       const makeFytMessage = (template, hater) =>
